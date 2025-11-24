@@ -1,10 +1,10 @@
-give me this code's readme fiile , #include <stdio.h>
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
 
 // Function to count words in a sentence
-int countWords(char *text) {
+int countWords(const char *text) {
     int count = 0;
     int inWord = 0;
 
@@ -20,22 +20,29 @@ int countWords(char *text) {
 }
 
 // Function to count mistakes between original and typed text
-int countMistakes(char *original, char *typed) {
+int countMistakes(const char *original, const char *typed) {
     int mistakes = 0;
-    int len = strlen(original);
+    int i = 0;
 
-    for (int i = 0; i < len; i++) {
+    while (original[i] != '\0' && typed[i] != '\0') {
         if (original[i] != typed[i]) {
             mistakes++;
         }
-        if (typed[i] == '\0') break;
+        i++;
+    }
+
+    // If user typed less than original sentence
+    while (original[i] != '\0') {
+        mistakes++;
+        i++;
     }
 
     return mistakes;
 }
 
 int main() {
-    char text[] = "Programming in C language improves problem solving skills.";
+
+    const char text[] = "Programming in C language improves problem solving skills.";
     char typed[500];
 
     printf("\n---------------------------------------------\n");
@@ -45,35 +52,36 @@ int main() {
     printf("\nType the following sentence:\n");
     printf("\n   \"%s\"\n", text);
 
-    printf("\nPress ENTER when ready...");
-    getchar();  // Wait for user
+    printf("\nPress ENTER to begin...");
+    getchar();  // Wait for user input
 
     printf("\nStart typing below:\n\n");
 
-    // Start timer
-    time_t start = time(NULL);
+    // Start the timer (precise time)
+    clock_t start = clock();
 
     // Get user input
     fgets(typed, sizeof(typed), stdin);
 
-    // End timer
-    time_t end = time(NULL);
+    // Stop timer
+    clock_t end = clock();
 
-    // Remove newline from typed text
+    // Remove newline
     typed[strcspn(typed, "\n")] = '\0';
 
-    double timeTaken = difftime(end, start);   // in seconds
+    // Calculate time taken in seconds
+    double timeTaken = (double)(end - start) / CLOCKS_PER_SEC;
+
     int totalWords = countWords(text);
-    int mistakes = countMistakes(text, typed);
     int totalChars = strlen(text);
+    int mistakes = countMistakes(text, typed);
 
     // WPM calculation
-    double wpm = (totalWords / timeTaken) * 60.0;
+    double wpm = ((double)totalWords / timeTaken) * 60.0;
 
     // Accuracy
     double accuracy = ((double)(totalChars - mistakes) / totalChars) * 100.0;
 
-    // Display results
     printf("\n---------------------------------------------\n");
     printf("                RESULTS\n");
     printf("---------------------------------------------\n");
@@ -82,7 +90,7 @@ int main() {
     printf("Typing Speed     : %.2f WPM\n", wpm);
     printf("Total Characters : %d\n", totalChars);
     printf("Mistakes Made    : %d\n", mistakes);
-    printf("Accuracy         : %.2f %%\n", accuracy);
+    printf("Accuracy         : %.2f%%\n", accuracy);
     printf("---------------------------------------------\n");
 
     return 0;
